@@ -14,7 +14,6 @@ jobs:
 
     steps:
     - prometheus/setup_environment
-    - run: go get -v ./...
     - run: make
     - prometheus/store_artifact:
         file: alertmanager-irc-relay 
