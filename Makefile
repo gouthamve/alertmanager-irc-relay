@@ -19,3 +19,4 @@ include Makefile.common
 DOCKER_IMAGE_NAME       ?= alertmanager-irc-relay 
 # There are multiple race conditions in the tests that I don't want to deal with yet.
 test-flags :=
+pkgs := .
