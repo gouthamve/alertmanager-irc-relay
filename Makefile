@@ -12,10 +12,12 @@
 # limitations under the License.
 
 # Needs to be defined before including Makefile.common to auto-generate targets
-DOCKER_ARCHS ?= amd64 armv7 arm64
+DOCKER_ARCHS ?= amd64
 
 include Makefile.common
 
 DOCKER_IMAGE_NAME       ?= alertmanager-irc-relay 
 # There are multiple race conditions in the tests that I don't want to deal with yet.
 test-flags :=
+
+PROMU_VERSION ?= 0.5.0
