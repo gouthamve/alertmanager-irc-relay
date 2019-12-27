@@ -1,24 +1,52 @@
-version: 2
+---
+version: 2.1
+
+orbs:
+  prometheus: prometheus/prometheus@0.1.0
+
+
 jobs:
-  test-1.9:
+  test:
+    # Whenever the Go version is updated here, .travis.yml and .promu.yml
+    # should also be updated.
     docker:
-      - image: circleci/golang:1.9
-    working_directory: /go/src/github.com/google/alertmanager-irc-relay
+    - image: circleci/golang:1.13
+
     steps:
-      - checkout
-      - run: go get -v -t -d ./...
-      - run: go test -v ./...
-  test-1.10:
-    docker:
-      - image: circleci/golang:1.10
-    working_directory: /go/src/github.com/google/alertmanager-irc-relay
-    steps:
-      - checkout
-      - run: go get -v -t -d ./...
-      - run: go test -v ./...
+    - prometheus/setup_environment
+    - run: go get -v ./...
+    - run: make
+    - prometheus/store_artifact:
+        file: alertmanager-irc-relay 
+
 workflows:
   version: 2
-  test:
+  alertmanager-irc-relay:
     jobs:
-      - test-1.9
-      - test-1.10
+    - test:
+        filters:
+          tags:
+            only: /.*/
+    - prometheus/build:
+        name: build
+        filters:
+          tags:
+            only: /.*/
+    - prometheus/publish_master:
+        context: org-context
+        requires:
+        - test
+        - build
+        filters:
+          branches:
+            only: master
+    - prometheus/publish_release:
+        context: org-context
+        requires:
+        - test
+        - build
+        filters:
+          tags:
+            only: /^v[0-9]+(\.[0-9]+){2}(-.+|[^-.]*)$/
+          branches:
+            ignore: /.*/
